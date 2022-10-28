@@ -1,14 +1,14 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import api from '../utils/Api';
 import Card from './Card'
 
 function Main({ onEditProfile, onAddPlace, onEditAvatar, onCardClick }) {
-    const [userName, setUserName] = React.useState(null);
-    const [userDescription, setUserDescription] = React.useState(null);
-    const [userAvatar, setUserAvatar] = React.useState(null);
-    const [cards, setCards] = React.useState([]);
+    const [userName, setUserName] = useState(null);
+    const [userDescription, setUserDescription] = useState(null);
+    const [userAvatar, setUserAvatar] = useState(null);
+    const [cards, setCards] = useState([]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         api.getUser(userName, userDescription, userAvatar)
             .then((res) => {
                 setUserName(res.name);
@@ -28,24 +28,16 @@ function Main({ onEditProfile, onAddPlace, onEditAvatar, onCardClick }) {
     }, [])
 
     function handleEditAvatarClick() {
-        const avatarPopup = document.querySelector('.avatar-popup');
-        avatarPopup.classList.add('popup_opened')
+        onEditAvatar()
     }
 
     function handleEditProfileClick() {
-        const avatarPopup = document.querySelector('.edit-popup');
-        avatarPopup.classList.add('popup_opened')
+        onEditProfile()
     }
 
     function handleAddPlaceClick() {
-        const avatarPopup = document.querySelector('.card-popup');
-        avatarPopup.classList.add('popup_opened')
+        onAddPlace()
     }
-
-    onEditProfile = handleEditProfileClick;
-    onAddPlace = handleAddPlaceClick;
-    onEditAvatar = handleEditAvatarClick;
-
 
     return (
         <main className="main">

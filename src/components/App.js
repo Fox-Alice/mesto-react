@@ -12,22 +12,28 @@ function App() {
   const [selectedCard, setselectedCard] = React.useState(null)
 
   const closeAllPopups = () => {
-    (document.querySelectorAll('.popup')).forEach(popup => {
-      popup.classList.remove('popup_opened')
-    });
+    setIsEditProfilePopupOpen(false);
+    setIsAddPlacePopupOpen(false);
+    setIsEditAvatarPopupOpen(false);
+    setselectedCard(null)
   }
 
   return (
     <div className="page">
       <Header />
       <Main
-        handleEditProfileClick={() => setIsEditProfilePopupOpen(true)}
-        handleAddPlaceClick={() => setIsAddPlacePopupOpen(true)}
-        handleEditAvatarClick={() => setIsEditAvatarPopupOpen(true)}
+        onEditProfile={() => setIsEditProfilePopupOpen(true)}
+        onAddPlace={() => setIsAddPlacePopupOpen(true)}
+        onEditAvatar={() => setIsEditAvatarPopupOpen(true)}
         onCardClick={(data) => setselectedCard(data)}
       />
       <Footer />
-      <PopupWithForm active={isEditProfilePopupOpen} setActive={setIsEditProfilePopupOpen} onClose={closeAllPopups} name="edit" title="Редактировать профиль">
+      <PopupWithForm
+        active={isEditProfilePopupOpen}
+        onClose={closeAllPopups}
+        buttonText='Сохранить'
+        name="edit"
+        title="Редактировать профиль">
         <fieldset className="popup__border">
           <input
             id="name-input"
@@ -65,6 +71,7 @@ function App() {
         active={isAddPlacePopupOpen}
         setActive={setIsAddPlacePopupOpen}
         onClose={closeAllPopups}
+        buttonText='Создать'
         name="card"
         title="Новое место">
         <fieldset className="popup__border card-popup__border">
@@ -100,6 +107,7 @@ function App() {
         active={isEditAvatarPopupOpen}
         setActive={setIsEditAvatarPopupOpen}
         onClose={closeAllPopups}
+        buttonText='Сохранить'
         name="avatar"
         title="Обновить аватар">
         <fieldset className="popup__border avatar-popup__border">
@@ -117,7 +125,10 @@ function App() {
           />
         </fieldset>
       </PopupWithForm>
-      <PopupWithForm name="delete" title="Вы уверены?" />
+      <PopupWithForm
+        buttonText='Да'
+        name="delete"
+        title="Вы уверены?" />
       <ImagePopup
         item={selectedCard}
         onClose={closeAllPopups} />
