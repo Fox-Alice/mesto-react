@@ -23,4 +23,4 @@
 
 ## Ссылка на проект в gh-pages
 
-https://Fox-Alice.github.io/mesto-react 
+https://Fox-Alice.github.io/mesto-react
