@@ -60,17 +60,9 @@ class Api {
             .then(this._onResponse)
     }
 
-    putLike(cardId) {
+    handleLike(cardId, isLiked) {
         return fetch(`${this._url}/cards/${cardId}/likes`, {
-            method: 'PUT',
-            headers: this._headers
-        })
-            .then(this._onResponse)
-    }
-
-    deleteLike(cardId) {
-        return fetch(`${this._url}/cards/${cardId}/likes`, {
-            method: 'DELETE',
+            method: isLiked ? 'DELETE' : 'PUT',
             headers: this._headers
         })
             .then(this._onResponse)
