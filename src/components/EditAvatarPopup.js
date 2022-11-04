@@ -11,6 +11,8 @@ function EditAvatarPopup({ active, onClose, onUpdateAvatar }) {
         onUpdateAvatar({
             avatar: avatarInput.current.value,
         });
+
+        avatarInput.current.value = ' ';
     }
 
     return (

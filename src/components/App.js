@@ -47,7 +47,7 @@ function App() {
 
   const handleCardLike = (card) => {
     const isLiked = card?.likes?.some(i => i._id === currentUser._id);
-    api.handleLike(card._id, isLiked)
+    api.handleLike(card?._id, isLiked)
       .then((res) => {
         setCards((state) => state.map((c) => c._id === card._id ? res : c));
       });
@@ -55,7 +55,7 @@ function App() {
 
   const handleCardDelete = (card) => {
     const isOwn = card?.owner?._id === currentUser._id;
-    api.removeCard(card._id)
+    api.removeCard(card?._id)
       .then((res) => {
         if (isOwn) {
           setCards((state) => state.filter((c) => c._id === card._id ? res : c));
@@ -92,7 +92,6 @@ function App() {
     })
       .then((res) => {
         const newCard = res;
-        console.log(newCard);
         setCards([newCard, ...cards]);;
         closeAllPopups()
       })
@@ -111,6 +110,8 @@ function App() {
           onAddPlace={() => setIsAddPlacePopupOpen(true)}
           onEditAvatar={() => setIsEditAvatarPopupOpen(true)}
           onCardClick={(data) => setselectedCard(data)}
+          onCardLike={handleCardLike}
+          onCardDelete={handleCardDelete}
         />
         <Footer />
         <EditProfilePopup

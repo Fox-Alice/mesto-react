@@ -54,8 +54,8 @@ function Main({ cards, onCardLike, onCardDelete, onEditProfile, onAddPlace, onEd
                         link={item.link}
                         owner={item.owner}
                         onCardClick={onCardClick}
-                        onCardLike={handleCardLike}
-                        onCardDelete={handleCardDelete}
+                        onCardLike={onCardLike}
+                        onCardDelete={onCardDelete}
                     />
                 ))}
             </section>

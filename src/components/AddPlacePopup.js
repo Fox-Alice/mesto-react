@@ -30,6 +30,11 @@ function AddPlacePopup({ active, onClose, onAddPlace }) {
         });
     }
 
+    useEffect(() => {
+        setName('');
+        setLink('');
+    }, [active]);
+
     return (
         <PopupWithForm
             active={active}
@@ -40,7 +45,7 @@ function AddPlacePopup({ active, onClose, onAddPlace }) {
             title="Новое место">
             <fieldset className="popup__border card-popup__border">
                 <input
-                    defaultValue={name}
+                    value={name || ''}
                     onChange={handleChangeName}
                     id="title-input"
                     type="text"
@@ -56,7 +61,7 @@ function AddPlacePopup({ active, onClose, onAddPlace }) {
                     className="title-input-error popup__input-error"
                 />
                 <input
-                    defaultValue={link}
+                    value={link || ''}
                     onChange={handleChangeLink}
                     id="link-input"
                     type="url"
