@@ -50,7 +50,10 @@ function App() {
     api.handleLike(card?._id, isLiked)
       .then((res) => {
         setCards((state) => state.map((c) => c._id === card._id ? res : c));
-      });
+      })
+      .catch((err) => {
+        console.log('Error', err);
+      })
   }
 
   const handleCardDelete = (card) => {
@@ -58,9 +61,12 @@ function App() {
     api.removeCard(card?._id)
       .then((res) => {
         if (isOwn) {
-          setCards((state) => state.filter((c) => c._id === card._id ? res : c));
+          setCards((state) => state.filter((c) => c._id !== card._id));
         }
-      });
+      })
+      .catch((err) => {
+        console.log('Error', err);
+      })
   }
 
   function handleUpdateUser(data) {

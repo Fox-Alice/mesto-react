@@ -6,26 +6,6 @@ function Main({ cards, onCardLike, onCardDelete, onEditProfile, onAddPlace, onEd
 
     const currentUser = useContext(CurrentUserContext);
 
-    function handleEditAvatarClick() {
-        onEditAvatar()
-    }
-
-    function handleEditProfileClick() {
-        onEditProfile()
-    }
-
-    function handleAddPlaceClick() {
-        onAddPlace()
-    }
-
-    function handleCardLike() {
-        onCardLike()
-    }
-
-    function handleCardDelete() {
-        onCardDelete()
-    }
-
     return (
         <main className="main">
             <section className="profile">
@@ -35,14 +15,14 @@ function Main({ cards, onCardLike, onCardDelete, onEditProfile, onAddPlace, onEd
                         src={currentUser?.avatar}
                         alt="Аватар путешественника"
                     />
-                    <div onClick={handleEditAvatarClick} className="profile__avatar-overlay" />
+                    <div onClick={onEditAvatar} className="profile__avatar-overlay" />
                 </div>
                 <div className="profile__info">
                     <h1 className="profile__title">{currentUser?.name}</h1>
-                    <button onClick={handleEditProfileClick} className="profile__button" aria-label="edit" type="button" />
+                    <button onClick={onEditProfile} className="profile__button" aria-label="edit" type="button" />
                     <p className="profile__description">{currentUser?.about}</p>
                 </div>
-                <button onClick={handleAddPlaceClick} className="profile__add-button" aria-label="add" type="button" />
+                <button onClick={onAddPlace} className="profile__add-button" aria-label="add" type="button" />
             </section>
             <section className="photo-grid">
                 {cards.map((item) => (

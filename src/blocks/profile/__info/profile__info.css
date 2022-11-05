@@ -1,5 +1,5 @@
 .profile__info {
-    justify-content: center;
+    justify-content: start;
     display: grid;
     grid-template-columns: repeat(2, auto);
     margin: 22.25px auto 14px;
