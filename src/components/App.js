@@ -6,9 +6,15 @@ import EditProfilePopup from './EditProfilePopup.js';
 import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup.js';
 import ImagePopup from './ImagePopup.js';
+import Login from './Login.js';
+import Register from './Register.js';
+import InfoTooltip from './InfoTooltip.js';
+import * as auth from '../utils/Auth.js';
 import api from '../utils/Api';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
+import { Route, Redirect } from 'react-router-dom';
+import ProtectedRoute from './ProtectedRoute.js';
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
@@ -17,6 +23,11 @@ function App() {
   const [selectedCard, setselectedCard] = useState(null)
   const [currentUser, setCurrentUser] = useState(null);
   const [cards, setCards] = useState([]);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState(null);
+  const [email, setEmail] = useState(null);
+  const [isTooltipPopupOpen, setIsTooltipPopupOpen] = useState(false);
 
   useEffect(() => {
     api.getUser(currentUser)
@@ -42,7 +53,8 @@ function App() {
     setIsEditProfilePopupOpen(false);
     setIsAddPlacePopupOpen(false);
     setIsEditAvatarPopupOpen(false);
-    setselectedCard(null)
+    setselectedCard(null);
+    setIsTooltipPopupOpen(false)
   }
 
   const handleCardLike = (card) => {
@@ -106,11 +118,93 @@ function App() {
       })
   }
 
+  const cbLogin = useCallback(async ({ email, password }) => {
+    try {
+      setLoading(true);
+      const data = await auth.authorize({ password, email });
+      if (!data) {
+        throw new Error('Неверное имя или пароль пользователя');
+      }
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        setLoggedIn(true);
+        setUserData(data);
+      }
+      return data;
+    } catch {
+      setIsTooltipPopupOpen(true);
+
+    } finally {
+      setLoading(false);
+    }
+  }, [])
+
+  const cbRegister = useCallback(async (password, email) => {
+    try {
+      setLoading(true);
+      const data = await auth.register(password, email);
+      if (!data) {
+        throw new Error('Пользователь не зарегистрирован');
+      }
+      if (data) {
+        cbLogin(password, email);
+        setIsTooltipPopupOpen(true);
+      }
+      return data;
+    } catch {
+      setIsTooltipPopupOpen(true);
+    } finally {
+      setLoading(false);
+    }
+  }, [])
+
+  const cbLogout = (() => {
+    setLoggedIn(false);
+    localStorage.clear();
+    setUserData(null);
+  })
+
+  const tokenCheck = useCallback(async () => {
+    try {
+      setLoading(true);
+      let token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('no token')
+      }
+      const user = await auth.checkToken(token);
+      if (!user) {
+        throw new Error('invalid user')
+      }
+      if (user) {
+        setLoggedIn(true);
+        setUserData(user);
+        setEmail(user.data.email);
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false)
+    }
+  }, []);
+
+  useEffect(() => {
+    tokenCheck()
+  }, [tokenCheck]);
+
+  if (loading) {
+    return '...Loading'
+  }
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
-        <Header />
-        <Main
+        <Header loggedIn={loggedIn}
+          onLogout={cbLogout}
+          email={email} />
+        <ProtectedRoute path="/"
+          loggedIn={loggedIn}
+          userData={userData}
+          component={Main}
           cards={cards}
           onEditProfile={() => setIsEditProfilePopupOpen(true)}
           onAddPlace={() => setIsAddPlacePopupOpen(true)}
@@ -118,8 +212,28 @@ function App() {
           onCardClick={(data) => setselectedCard(data)}
           onCardLike={handleCardLike}
           onCardDelete={handleCardDelete}
-        />
+        >
+        </ProtectedRoute>
+        <Route path="/signin">
+          <Login loggedIn={loggedIn}
+            onLogin={cbLogin}
+            onTooltip={() => setIsTooltipPopupOpen(true)}
+          />
+        </Route>
+        <Route path="/signup">
+          <Register loggedIn={loggedIn}
+            onRegister={cbRegister}
+            onTooltip={() => setIsTooltipPopupOpen(true)}
+          />
+        </Route>
+        <Route path="*" exact>
+          {loggedIn ? <Redirect to="/" /> : <Redirect to="/signin" />}
+        </Route>
         <Footer />
+        <InfoTooltip
+          active={isTooltipPopupOpen}
+          onClose={closeAllPopups}
+          loggedIn={loggedIn} />
         <EditProfilePopup
           active={isEditProfilePopupOpen}
           onClose={closeAllPopups}
