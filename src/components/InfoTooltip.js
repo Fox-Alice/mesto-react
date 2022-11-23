@@ -3,7 +3,7 @@ import success from '../images/success.png';
 import fail from '../images/fail.png';
 
 
-function InfoTooltip({ active, onClose, loggedIn }) {
+function InfoTooltip({ active, onClose, loggedIn, message }) {
 
     return (
         <div className={`page popup tooltip-popup ${active && 'popup_opened'}`}>
@@ -20,7 +20,7 @@ function InfoTooltip({ active, onClose, loggedIn }) {
                         src={loggedIn ? success : fail}
                         alt="Success"
                     />
-                    <p className="tooltip-popup__title popup__title">{loggedIn ? "Вы успешно зарегистрировались!" : "Что-то пошло не так! Попробуйте еще раз."}</p>
+                    <p className="tooltip-popup__title popup__title">{message}</p>
                 </div>
             </div>
         </div>

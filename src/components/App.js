@@ -13,7 +13,7 @@ import * as auth from '../utils/Auth.js';
 import api from '../utils/Api';
 import { useEffect, useState, useCallback } from 'react';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
-import { Route, Redirect } from 'react-router-dom';
+import { Route, Redirect, Switch } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute.js';
 
 function App() {
@@ -28,26 +28,7 @@ function App() {
   const [userData, setUserData] = useState(null);
   const [email, setEmail] = useState(null);
   const [isTooltipPopupOpen, setIsTooltipPopupOpen] = useState(false);
-
-  useEffect(() => {
-    api.getUser(currentUser)
-      .then((res) => {
-        setCurrentUser(res);
-      })
-      .catch((err) => {
-        console.log('Error', err);
-      })
-  }, [])
-
-  useEffect(() => {
-    api.getInitialCards()
-      .then((res) => {
-        return setCards(res);
-      })
-      .catch((err) => {
-        console.log('Error', err);
-      })
-  }, [])
+  const [message, setMessage] = useState(null)
 
   const closeAllPopups = () => {
     setIsEditProfilePopupOpen(false);
@@ -131,7 +112,8 @@ function App() {
         setUserData(data);
       }
       return data;
-    } catch {
+    } catch (res) {
+      setMessage(res.message);
       setIsTooltipPopupOpen(true);
 
     } finally {
@@ -151,8 +133,10 @@ function App() {
         setIsTooltipPopupOpen(true);
       }
       return data;
-    } catch {
+    } catch (res) {
+      setMessage(res.error);
       setIsTooltipPopupOpen(true);
+
     } finally {
       setLoading(false);
     }
@@ -185,11 +169,33 @@ function App() {
     } finally {
       setLoading(false)
     }
-  }, []);
+  }, [loggedIn]);
 
   useEffect(() => {
     tokenCheck()
   }, [tokenCheck]);
+
+  useEffect(() => {
+    loggedIn &&
+      api.getUser(currentUser)
+        .then((res) => {
+          setCurrentUser(res);
+        })
+        .catch((err) => {
+          console.log('Error', err);
+        })
+  }, [loggedIn])
+
+  useEffect(() => {
+    loggedIn &&
+      api.getInitialCards()
+        .then((res) => {
+          return setCards(res);
+        })
+        .catch((err) => {
+          console.log('Error', err);
+        })
+  }, [loggedIn])
 
   if (loading) {
     return '...Loading'
@@ -201,39 +207,42 @@ function App() {
         <Header loggedIn={loggedIn}
           onLogout={cbLogout}
           email={email} />
-        <ProtectedRoute path="/"
-          loggedIn={loggedIn}
-          userData={userData}
-          component={Main}
-          cards={cards}
-          onEditProfile={() => setIsEditProfilePopupOpen(true)}
-          onAddPlace={() => setIsAddPlacePopupOpen(true)}
-          onEditAvatar={() => setIsEditAvatarPopupOpen(true)}
-          onCardClick={(data) => setselectedCard(data)}
-          onCardLike={handleCardLike}
-          onCardDelete={handleCardDelete}
-        >
-        </ProtectedRoute>
-        <Route path="/signin">
-          <Login loggedIn={loggedIn}
-            onLogin={cbLogin}
-            onTooltip={() => setIsTooltipPopupOpen(true)}
-          />
-        </Route>
-        <Route path="/signup">
-          <Register loggedIn={loggedIn}
-            onRegister={cbRegister}
-            onTooltip={() => setIsTooltipPopupOpen(true)}
-          />
-        </Route>
-        <Route path="*" exact>
+        <Switch>
+          <ProtectedRoute exact path="/"
+            loggedIn={loggedIn}
+            userData={userData}
+            component={Main}
+            cards={cards}
+            onEditProfile={() => setIsEditProfilePopupOpen(true)}
+            onAddPlace={() => setIsAddPlacePopupOpen(true)}
+            onEditAvatar={() => setIsEditAvatarPopupOpen(true)}
+            onCardClick={(data) => setselectedCard(data)}
+            onCardLike={handleCardLike}
+            onCardDelete={handleCardDelete}
+          >
+          </ProtectedRoute>
+          <Route path="/signin">
+            <Login loggedIn={loggedIn}
+              onLogin={cbLogin}
+              onTooltip={() => setIsTooltipPopupOpen(true)}
+            />
+          </Route>
+          <Route path="/signup">
+            <Register loggedIn={loggedIn}
+              onRegister={cbRegister}
+              onTooltip={() => setIsTooltipPopupOpen(true)}
+            />
+          </Route>
+        </Switch>
+        <Route exact path="*" >
           {loggedIn ? <Redirect to="/" /> : <Redirect to="/signin" />}
         </Route>
         <Footer />
         <InfoTooltip
           active={isTooltipPopupOpen}
           onClose={closeAllPopups}
-          loggedIn={loggedIn} />
+          loggedIn={loggedIn}
+          message={loggedIn ? "Вы успешно зарегистрировались!" : message} />
         <EditProfilePopup
           active={isEditProfilePopupOpen}
           onClose={closeAllPopups}
@@ -257,7 +266,6 @@ function App() {
         <ImagePopup
           item={selectedCard}
           onClose={closeAllPopups} />
-        <template className="card-template" />
       </div>
     </CurrentUserContext.Provider>
   );

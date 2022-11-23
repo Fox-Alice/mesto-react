@@ -12,7 +12,6 @@ function Register({ loggedIn, onRegister }) {
             ...userData,
             [name]: value
         })
-
     }
 
     const handleSubmit = (evt) => {
@@ -69,7 +68,7 @@ function Register({ loggedIn, onRegister }) {
                     Зарегистрироваться
                 </button>
             </form>
-            <Link to="/login" className="register__signup-link">Уже зарегистрированы? Войти</Link>
+            <Link to="/signin" className="register__signup-link">Уже зарегистрированы? Войти</Link>
         </div>
     );
 }
